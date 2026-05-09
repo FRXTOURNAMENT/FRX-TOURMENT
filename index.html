@@ -8,13 +8,32 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { background: #0a0e1a; color: #fff; font-family: 'Segoe UI', sans-serif; }
 
+    @keyframes caerLogo {
+      0%   { transform: translateY(-120px) scale(0.7); opacity: 0; }
+      60%  { transform: translateY(12px) scale(1.05); opacity: 1; }
+      80%  { transform: translateY(-6px) scale(0.98); }
+      100% { transform: translateY(0px) scale(1); opacity: 1; }
+    }
+    @keyframes brilloLogo {
+      0%, 100% { filter: drop-shadow(0 0 8px #00d4ff88); }
+      50%       { filter: drop-shadow(0 0 22px #00d4ffcc); }
+    }
+
     header {
       background: linear-gradient(135deg, #0a0e1a, #1a1f35);
       border-bottom: 2px solid #00d4ff;
-      padding: 20px;
+      padding: 24px 20px;
       text-align: center;
     }
-    header img { width: 80px; margin-bottom: 10px; }
+    header img {
+      width: 120px;
+      margin-bottom: 12px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+      animation: caerLogo 0.9s cubic-bezier(0.22,1,0.36,1) both,
+                 brilloLogo 3s ease-in-out 1s infinite;
+    }
     header h1 { font-size: 2rem; color: #00d4ff; letter-spacing: 4px; }
     header p { color: #aaa; font-size: 0.85rem; letter-spacing: 2px; margin-top: 4px; }
 
@@ -243,8 +262,9 @@
 <body>
 
 <header>
-  <h1>FRX</h1>
-  <p>F R X &nbsp; N A &nbsp; — &nbsp; W A R Z O N E &nbsp; T O U R N A M E N T &nbsp; S Y S T E M</p>
+  <img src="logo.jpeg" alt="FRX NA Logo" />
+  <h1>FRX NA</h1>
+  <p>W A R Z O N E &nbsp; T O U R N A M E N T &nbsp; S Y S T E M</p>
 </header>
 
 <nav>
