@@ -244,11 +244,14 @@
     <h2>■ INSCRIPCIÓN DE ESCUADRA</h2>
     <div id="torneoSeleccionado" style="font-size:0.75rem;color:#ffaa00;margin-bottom:14px;font-family:'Rajdhani',sans-serif;letter-spacing:2px;"></div>
     <div class="form-group"><label>Nombre del Equipo</label><input type="text" id="teamName" placeholder="Nombre del clan" /></div>
-    <div class="form-group"><label>Gamertag del Líder</label><input type="text" id="leader" placeholder="Tu gamertag" /></div>
     <div class="form-group">
-      <label>Jugadores del Trío</label>
-      <div class="players-row">
-        <input type="text" id="p1" placeholder="Jugador 1" />
+      <label>Capitán — Jugador 1 (tú)</label>
+      <input type="text" id="leader" placeholder="Tu gamertag" />
+      <div style="font-size:0.65rem;color:#555;margin-top:4px;letter-spacing:1px">⚡ El capitán cuenta como Jugador 1 del trío</div>
+    </div>
+    <div class="form-group">
+      <label>Compañeros del Trío</label>
+      <div class="players-row" style="grid-template-columns:1fr 1fr;">
         <input type="text" id="p2" placeholder="Jugador 2" />
         <input type="text" id="p3" placeholder="Jugador 3" />
       </div>
@@ -527,8 +530,10 @@ async function analizarCaptura(base64){
 
   const imageData=base64.split(',')[1];
   const mediaType=base64.split(';')[0].split(':')[1];
-  const jugadores=[eq.leader,...(eq.players||[])];
-  if(eq.suplente) jugadores.push(eq.suplente);
+  // Eliminar duplicados automáticamente
+  const jugadoresRaw=[eq.leader,...(eq.players||[])];
+  if(eq.suplente) jugadoresRaw.push(eq.suplente);
+  const jugadores=[...new Set(jugadoresRaw.map(j=>j.trim().toLowerCase()))].map(j=>jugadoresRaw.find(x=>x.trim().toLowerCase()===j));
 
   try {
     const response=await fetch('https://api.anthropic.com/v1/messages',{
@@ -622,17 +627,17 @@ document.getElementById('btnInscribir').addEventListener('click',async()=>{
   if(!codigoValidado)return;
   const teamName=document.getElementById('teamName').value.trim();
   const leader=document.getElementById('leader').value.trim();
-  const p1=document.getElementById('p1').value.trim(),p2=document.getElementById('p2').value.trim(),p3=document.getElementById('p3').value.trim();
+  const p2=document.getElementById('p2').value.trim(),p3=document.getElementById('p3').value.trim();
   const suplente=document.getElementById('suplente').value.trim(),nota=document.getElementById('nota').value.trim();
   const msg=document.getElementById('msgInscripcion');
-  if(!teamName||!leader||!p1||!p2||!p3){msg.className='msg error';msg.textContent='⚠️ Completa todos los campos.';return;}
+  if(!teamName||!leader||!p2||!p3){msg.className='msg error';msg.textContent='⚠️ Completa todos los campos.';return;}
   try {
-    await addDoc(collection(db,'equipos'),{teamName,leader,players:[p1,p2,p3],suplente,nota,kills:0,puntos:0,torneoId:codigoValidado.torneoId,torneoNombre:codigoValidado.torneoNombre,codigo:codigoValidado.code,timestamp:new Date()});
+    await addDoc(collection(db,'equipos'),{teamName,leader,players:[leader,p2,p3],suplente,nota,kills:0,puntos:0,torneoId:codigoValidado.torneoId,torneoNombre:codigoValidado.torneoNombre,codigo:codigoValidado.code,timestamp:new Date()});
     const ts=doc(db,'torneos',codigoValidado.torneoId);const tsnap=await getDoc(ts);
     const codigos=tsnap.data().codigos;codigos[codigoValidado.code]={usado:true,equipo:teamName};
     await updateDoc(ts,{codigos,inscritos:(tsnap.data().inscritos||0)+1});
     msg.className='msg success';msg.textContent='✅ ¡Inscrito en '+codigoValidado.torneoNombre+'!';
-    ['teamName','leader','p1','p2','p3','suplente','nota'].forEach(id=>document.getElementById(id).value='');
+    ['teamName','leader','p2','p3','suplente','nota'].forEach(id=>document.getElementById(id).value='');
     document.getElementById('codigoCapitan').value='';document.getElementById('formInscripcion').style.display='none';codigoValidado=null;
   } catch(e){msg.className='msg error';msg.textContent='❌ Error al inscribir.';}
 });
